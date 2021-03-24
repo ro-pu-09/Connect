@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "748675752686",
+    "project_id": "test-finb-123",
+    "storage_bucket": "test-finb-123.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:748675752686:android:ce51a2f2a14630d31e09ff",
+        "android_client_info": {
+          "package_name": "com.elect.oopproject"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "748675752686-8720eaibld3m4tunae1oelbvsoda71ov.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDc7qJUrA7wnhtnnYwIBcUjFChztwg6QBo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "748675752686-8720eaibld3m4tunae1oelbvsoda71ov.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
