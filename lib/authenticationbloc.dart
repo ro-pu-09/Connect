@@ -29,7 +29,7 @@ class AuthenticationBlock{
     }
     on FirebaseAuthException catch (e) {
       if (e.code == 'email-already-in-use') {
-        print("---------------------------");
+
          return await SignInWithEmail(username, password);
 
       }
@@ -46,7 +46,7 @@ class AuthenticationBlock{
 
 
   Future<dynamic> SignInWithEmail(String username,String password)async{
-    print("-----------------------22222224fff---------");
+
     await Firebase.initializeApp();
 
     User user;
@@ -80,13 +80,15 @@ Future<dynamic> getUserfromFireStore(User user)async{
      String type = snapshot.data()['type'];
      double latitude = snapshot.data()['latitude'];
      double longitude= snapshot.data()['longitude'];
-
+     if(user.emailVerified)
      userD = new UserDetails(user.email, type, latitude,longitude, true);
+
+
      return userD;
    }
    else {
 
-     userD=new UserDetails(user.email, null,null, null, true);
+     userD=new UserDetails(user.email, null,null, null, user.emailVerified);
      return userD;
    }
 }

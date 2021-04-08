@@ -1,5 +1,6 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -82,6 +83,11 @@ class _userDetailsInputState extends State<userDetailsInput> {
           FlatButton(onPressed: ()async {
                addUserDetails("rohithputha@gmail.com", _character,context);
             }, child: Text("Finish Registeration")),
+
+          RaisedButton(child:Text("delete"),onPressed: (){
+            FirebaseAuth auth=FirebaseAuth.instance;
+            auth.currentUser.delete();
+          })
 
         ],
       ),

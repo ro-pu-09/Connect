@@ -25,22 +25,20 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
 
   
-  return ChangeNotifierProvider(create: (context)=>AuthService(),
-    child: new MaterialApp(
-      home: FutureBuilder(
-        future: Firebase.initializeApp(),
-        builder: (context,snapshot){
-          if(snapshot.hasError)return Scaffold(body: Center(child: Text("Something went wrong"),),);
+  return new MaterialApp(
+    home: FutureBuilder(
+      future: Firebase.initializeApp(),
+      builder: (context,snapshot){
+        if(snapshot.hasError)return Scaffold(body: Center(child: Text("Something went wrong"),),);
 
-          if (snapshot.connectionState == ConnectionState.done) {
-            return Landing();
-          }
+        if (snapshot.connectionState == ConnectionState.done) {
+          return Landing();
+        }
 
-          return Scaffold(body: Center(child: CircularProgressIndicator(),),);
-        },
-      ),
+        return Scaffold(body: Center(child: CircularProgressIndicator(),),);
+      },
     ),
-    );
+  );
 
   }
 }
@@ -129,16 +127,25 @@ class Landing extends StatelessWidget {
     return FutureBuilder(
       future: getUser(),
        // initialData: Scaffold(body: Center(child: CircularProgressIndicator(),),),
-        builder: (context,snapshot ){
-        print(snapshot.data);
-        if(snapshot.data==null){
-          return loginpage();
+        builder: (context,snapshot ) {
+
+          if (snapshot.connectionState == ConnectionState.done) {
+
+            if (snapshot.data == null) {
+              return loginpage();
+            }
+            else if (snapshot.data!=null && snapshot.data.type == null) {
+              return userDetailsInput();
+            }
+            else
+              return dashBoard();
+          }
+
+          else {
+            return Scaffold(body: Center(child: CircularProgressIndicator(),),);
+          }
         }
-        else if(snapshot.data.type==null){
-          return userDetailsInput();
-        }
-        else return dashBoard();
-        });
+        );
   }
 }
 

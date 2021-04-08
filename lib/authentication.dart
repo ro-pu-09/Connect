@@ -6,7 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:oopproject/User.dart';
 import 'package:oopproject/authenticationbloc.dart';
+import 'package:oopproject/dashboardretailer.dart';
+import 'package:oopproject/userDetailsInput.dart';
 import 'dashboad.dart';
+
+
 
 
 AuthenticationBlock authblock=new AuthenticationBlock();
@@ -19,7 +23,7 @@ TextEditingController repassword=new TextEditingController();
 
 rePasswordCheck RPC=new rePasswordCheck();
 
-final _formKey = GlobalKey<FormState>();
+
 
 
 class loginpage extends StatefulWidget{
@@ -47,34 +51,48 @@ class _loginpageState extends State<loginpage> {
   Widget build (BuildContext buildContext){
 
     return Scaffold(
-
+      backgroundColor: Colors.lightBlue,
       body: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        mainAxisAlignment: MainAxisAlignment.center,
 
         children: [
+          Card(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                TextFormField(
 
-          TextFormField(
+                  decoration: InputDecoration(labelText: 'Enter your username'),
+                  controller: username,
 
-            decoration: InputDecoration(labelText: 'Enter your username'),
-            controller: username,
+                ),
 
+                TextFormField(
+                  // key:_formKey,
+                  obscureText: true,
+                  decoration: InputDecoration(labelText: 'Enter your password'),
+                  controller: password,
+
+                ),
+
+                TextFormField(
+                  //   key: _formKey,
+                  obscureText: true,
+                  decoration: InputDecoration(labelText: 'Re-enter your password'),
+                  controller: repassword,
+
+                )
+              ],
+            ),
           ),
-          TextFormField(
-           // key:_formKey,
-            obscureText: true,
-            decoration: InputDecoration(labelText: 'Enter your password'),
-            controller: password,
 
-          ),
-          TextFormField(
-         //   key: _formKey,
-          obscureText: true,
-          decoration: InputDecoration(labelText: 'Re-enter your password'),
-          controller: repassword,
-
-          ),
 
           SignUpButton(),
+
+          RaisedButton(child:Text("delete"),onPressed: (){
+            FirebaseAuth auth=FirebaseAuth.instance;
+            auth.currentUser.delete();
+          })
 
         ],
 
@@ -100,13 +118,13 @@ class _SignUpButtonState extends State<SignUpButton> {
           return Column(
               children:[
                 RaisedButton(
-                   onPressed:!snapshot.data?null: ()
+                   onPressed:(!snapshot.data)?null: ()
                   {
 
                     print(snapshot.data);
                     if(snapshot.data){
                       authblock.SignUpWithEmail(username.text, password.text).then((userd){
-                        print("!!!!!!!!!!!!!!!!!!");
+
                         print(userd);
                         if(userd==1){
                           print("user not found");
@@ -128,7 +146,7 @@ class _SignUpButtonState extends State<SignUpButton> {
                         else {
                           Navigator.of(buildContext).pushReplacement(
                               MaterialPageRoute(builder: (context) {
-                                return dashBoard();
+                                return userDetailsInput();
                               })
                           );
                         }
@@ -142,7 +160,8 @@ class _SignUpButtonState extends State<SignUpButton> {
                     }
                   },
                   child: Text("Signup"),
-                  disabledColor: Colors.grey,
+                  disabledColor: Colors.lightBlue,
+                  color: Colors.white,
 
                 )]);
         });
@@ -178,7 +197,7 @@ class rePasswordCheck
   //ink<String> get inputpassword=>_rePasswordCheck.sink;
   String inputpassword;
   addToStreamPassword(String text){
-     inputpassword=text;
+    inputpassword=text;
   }
   addToStreamRePassword(String text){
     inputrepassword.add(text);
@@ -187,7 +206,7 @@ class rePasswordCheck
   Stream<bool> get repasswordcheck => _rePasswordCheck.stream.map((event) {
 
 
-  return event==inputpassword;
+    return event==inputpassword;
   });
 
   void dispose()=> _rePasswordCheck.close();
