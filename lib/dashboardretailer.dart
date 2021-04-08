@@ -10,7 +10,7 @@ final ctStream=new categoryStream();
 List<String> productname=[];
 List<String> productquant=[];
 List<String> productprice=[];
-
+String presentcateg;
 
 class dashboardretailer extends StatefulWidget {
   @override
@@ -36,7 +36,8 @@ class _dashboardretailerState extends State<dashboardretailer> {
 
 
           final db=FirebaseFirestore.instance;
-          return intputStream(snapshot.data);
+          presentcateg=snapshot.data;
+          return intputStream();
 
 
       },
@@ -48,8 +49,8 @@ class _dashboardretailerState extends State<dashboardretailer> {
 
 
 class intputStream extends StatelessWidget {
-  String categ;
-  intputStream(this.categ);
+  //String categ;
+  //intputStream(this.categ);
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
@@ -60,7 +61,7 @@ class intputStream extends StatelessWidget {
            if(snapshot.connectionState==ConnectionState.active) {
 
              DocumentSnapshot Dsnapshot=snapshot.data;
-             int index=Dsnapshot.data().keys.toList().indexOf(categ);
+             int index=Dsnapshot.data().keys.toList().indexOf(presentcateg);
 //             print("-=--------------");
 //             print(index);
 //             print("---------------");
@@ -134,10 +135,10 @@ class productcard extends StatelessWidget {
 //
 //    });
     FirebaseFirestore.instance.collection('retailer').doc('rohithputha@gmail.com').update({
-       'vegetables':{
-        'onions':FieldValue.arrayUnion([price, quant ]),
+
+        presentcateg+'.'+productname[index]:[price,quant],
          //'tomatoes':FieldValue.arrayUnion(['60','100']),
-      }
+
     });
 
   }
@@ -148,18 +149,35 @@ class productcard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
 
-          Text(productname[index]),
+          Text(productname[index],style: TextStyle(fontSize: 24),),
 
-          Text("Quantity Available "+quant),
-          Row(children: [
-            ElevatedButton.icon(onPressed: (){
+
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            IconButton(onPressed: (){
+              quant=(int.parse(quant)-1).toString();
+              makechangesprice();
+            }, icon: Icon(Icons.remove),),
+            Text("Quantity Available "+quant),
+            IconButton(onPressed: (){
+              quant=(int.parse(quant)+1).toString();
+              makechangesprice();
+            }, icon: Icon(Icons.add),),
+          ],),
+          Row(mainAxisAlignment: MainAxisAlignment.center,
+           children: [
+            IconButton(onPressed: (){
               price=(int.parse(price)-1).toString();
               makechangesprice();
-            }, icon: Icon(Icons.remove), label: Text("subtract")),
+            }, icon: Icon(Icons.remove),),
 
             Text("Selling Price "+price),
 
-            ElevatedButton.icon(onPressed: null, icon: Icon(Icons.add), label: Text("add"))
+            IconButton(onPressed: (){
+              price=(int.parse(price)+1).toString();
+              makechangesprice();
+            }, icon: Icon(Icons.add), )
           ]),
           FlatButton(child: Text("Buy stock"),onPressed: (){},),
         ],
