@@ -146,7 +146,8 @@ class _SignUpButtonState extends State<SignUpButton> {
                         else {
                           Navigator.of(buildContext).pushReplacement(
                               MaterialPageRoute(builder: (context) {
-                                return userDetailsInput();
+                                if(userd.type==null)return userDetailsInput();
+                                else return dashBoard();
                               })
                           );
                         }

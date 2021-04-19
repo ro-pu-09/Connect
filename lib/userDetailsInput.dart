@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geocoder/geocoder.dart';
 import 'package:location/location.dart';
+import 'package:oopproject/User.dart';
 import 'package:oopproject/dashboad.dart';
 import 'package:oopproject/authenticationbloc.dart';
 enum type { consumer, retailer, wholesaler}
@@ -14,6 +15,7 @@ class locationData {
   Location location=new Location();
 
   Future<dynamic> getCoordinates()async {
+
      LocationData currentloction;
      try {
        currentloction = await location.getLocation();
@@ -81,11 +83,12 @@ class _userDetailsInputState extends State<userDetailsInput> {
           ),
 
           FlatButton(onPressed: ()async {
-               addUserDetails("rohithputha@gmail.com", _character,context);
+               addUserDetails("", _character,context);
             }, child: Text("Finish Registeration")),
 
           RaisedButton(child:Text("delete"),onPressed: (){
             FirebaseAuth auth=FirebaseAuth.instance;
+
             auth.currentUser.delete();
           })
 
@@ -101,7 +104,9 @@ Future<void> addUserDetails(String email,type character,BuildContext context) as
   final db=FirebaseFirestore.instance;
   locationData obj=new locationData();
   Coordinates coordinates=await obj.getCoordinates();
-  dynamic snapshhot=db.collection('UserDetails').doc(email).set(
+  UserDetails userD=await getUser();
+
+  dynamic snapshhot=db.collection('UserDetails').doc(userD.emailid).set(
       {
         "latitude": coordinates.latitude,
         "longitude":coordinates.longitude,

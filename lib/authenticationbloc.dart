@@ -7,18 +7,17 @@ import 'package:oopproject/User.dart';
 
 final FirebaseAuth _auth = FirebaseAuth.instance;
 UserDetails userD;
+
+
 class AuthenticationBlock{
   Future<dynamic> SignUpWithEmail(String username, String password) async{
     await Firebase.initializeApp();
-
     User user;
     try {
-
       UserCredential userCredential=await _auth.createUserWithEmailAndPassword(
           email: username,
           password: password
       );
-
       user= userCredential.user;
       if(!user.emailVerified)
       {
@@ -39,14 +38,10 @@ class AuthenticationBlock{
     } catch (e) {
       return e;
     }
-
-
   }
 
 
-
   Future<dynamic> SignInWithEmail(String username,String password)async{
-
     await Firebase.initializeApp();
 
     User user;
@@ -54,7 +49,7 @@ class AuthenticationBlock{
       UserCredential userCredential= await _auth.signInWithEmailAndPassword(email: username, password: password);
       user=userCredential.user;
 
-      userD =await getUserfromFireStore(user);
+      userD =await getUserfromFireStore(user.email,user.emailVerified);
       return userD;
 
     }
@@ -71,24 +66,25 @@ class AuthenticationBlock{
   }
 }
 
-Future<dynamic> getUserfromFireStore(User user)async{
+
+Future<dynamic> getUserfromFireStore(String email, bool verified)async{
   final db = FirebaseFirestore.instance;
 
-  dynamic snapshot = await db.collection('UserDetails').doc(user.email).get();
+  dynamic snapshot = await db.collection('UserDetails').doc(email).get();
   print(snapshot.data());
    if(snapshot.data()!=null){
      String type = snapshot.data()['type'];
      double latitude = snapshot.data()['latitude'];
      double longitude= snapshot.data()['longitude'];
-     if(user.emailVerified)
-     userD = new UserDetails(user.email, type, latitude,longitude, true);
 
+     userD = new UserDetails(email, type, latitude,longitude, verified);
 
+     print("!!!!!!!!");
+     print(userD.type);
      return userD;
    }
    else {
-
-     userD=new UserDetails(user.email, null,null, null, user.emailVerified);
+     userD=new UserDetails(email, null,null, null, verified);
      return userD;
    }
 }
@@ -98,9 +94,11 @@ Future<dynamic> getUser() async {
   User user = await FirebaseAuth.instance.currentUser;
 
   if(user==null) return null;
+  else return await getUserfromFireStore(user.email,user.emailVerified);
 
-  else return await getUserfromFireStore(user);
 }
+
+
 Future<void> AuthChanges() async{
     await Firebase.initializeApp();
     _auth.authStateChanges();

@@ -135,6 +135,7 @@ class Landing extends StatelessWidget {
               return loginpage();
             }
             else if (snapshot.data!=null && snapshot.data.type == null) {
+              print(snapshot.data.type);
               return userDetailsInput();
             }
             else

@@ -2,7 +2,10 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+
+import 'authentication.dart';
 
 
 
@@ -33,14 +36,10 @@ class _dashboardretailerState extends State<dashboardretailer> {
         initialData: 'vegetables',
       stream: ctStream.outputcateg,
       builder: (context,snapshot){
-
-
           final db=FirebaseFirestore.instance;
           presentcateg=snapshot.data;
           return intputStream();
-
-
-      },
+          },
     )
     );
 
@@ -62,9 +61,7 @@ class intputStream extends StatelessWidget {
 
              DocumentSnapshot Dsnapshot=snapshot.data;
              int index=Dsnapshot.data().keys.toList().indexOf(presentcateg);
-//             print("-=--------------");
-//             print(index);
-//             print("---------------");
+
              productname.clear();
              productquant.clear();
              productprice.clear();
@@ -116,7 +113,8 @@ class productcard extends StatelessWidget {
   int index;
   String price;
   String quant;
-  productcard(this.index){
+  productcard(this.index)
+  {
        price=productprice[index];
        quant=productquant[index];
 
@@ -211,6 +209,12 @@ class sidedrawer extends StatelessWidget {
             ctStream.inputCateg.add('dairy');
             Navigator.of(context).pop();
           },),
+          ListTile(title: Text("Sign out",style: TextStyle(),),
+           onTap: (){
+            FirebaseAuth.instance.signOut().then((res){
+            Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=>loginpage()));
+            });
+          }),
         ],
       ),
     );
