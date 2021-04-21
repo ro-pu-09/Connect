@@ -1,4 +1,5 @@
 
+import 'package:add_2_calendar/add_2_calendar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -14,6 +15,7 @@ TextEditingController locdistcontr=new TextEditingController();
 TextEditingController quantcontr=new TextEditingController();
 int d=0,q=0;
 enum mode{offline,online}
+mode _character=mode.online;
 String type;
 String prod;
 String categ;
@@ -31,7 +33,7 @@ class shopList extends StatefulWidget {
 
 class _shopListState extends State<shopList> {
 
-  mode _character=mode.online;
+
 
   @override
   Widget build(BuildContext bcontext) {
@@ -154,7 +156,10 @@ class card extends StatelessWidget {
           Text(snapshot[1],style: TextStyle(fontSize: 24),),
           Text(snapshot[2],style: TextStyle(fontSize: 24),),
           FlatButton(onPressed: (){
-               addtocart(snapshot[0],snapshot[1],prod,context );
+            if(_character==mode.online)
+               addtocart(snapshot[0],q.toString(),prod,context );
+
+            else addtocalender(snapshot[0],q.toString(),prod,context );
            }, child: Text("Buy")),
         ],
       )
@@ -179,4 +184,20 @@ addtocart(String email,String quant,String prod, context) async{
       }))
      );
 }
+
+addtocalender(String email,String quant, String prod, context) async{
+
+  Event event=Event(
+    title: 'Pick up order',
+    description: 'You need to pick up your order from'+email,
+    location: 'test location',
+    startDate: DateTime.now(),
+    endDate: DateTime.now().add(Duration(minutes: 30)),
+    allDay: true,
+
+  );
+
+  Add2Calendar.addEvent2Cal(event).then((success)=>SnackBar(content: Text(success?'Added to calender':'Error while adding to calender')));
+}
+
 

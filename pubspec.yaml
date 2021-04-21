@@ -38,7 +38,7 @@ dependencies:
   provider:
   geolocator: '^5.1.1'
   geocoder: ^0.2.1
-
+  add_2_calendar:
 dev_dependencies:
   flutter_test:
     sdk: flutter

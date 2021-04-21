@@ -129,9 +129,7 @@ class productcard extends StatelessWidget {
   }
 
   void makechangesprice(){
-//    setState(() {
-//
-//    });
+
     FirebaseFirestore.instance.collection('retailer').doc('rohithputha@gmail.com').update({
 
         presentcateg+'.'+productname[index]:[price,quant],
@@ -156,7 +154,7 @@ class productcard extends StatelessWidget {
             IconButton(onPressed: (){
               quant=(int.parse(quant)-1).toString();
               makechangesprice();
-            }, icon: Icon(Icons.remove),),
+             }, icon: Icon(Icons.remove),),
             Text("Quantity Available "+quant),
             IconButton(onPressed: (){
               quant=(int.parse(quant)+1).toString();

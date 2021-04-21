@@ -6,6 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:oopproject/authentication.dart';
+import 'package:oopproject/cartcust.dart';
 import 'package:oopproject/dashboardretailer.dart';
 import 'package:oopproject/shopList.dart';
 
@@ -107,6 +108,9 @@ class sidedrawer extends StatelessWidget {
           ListTile(title: Text("Dairy"),onTap: (){
             ctStream.inputCateg.add('dairy');
             Navigator.of(context).pop();
+          },),
+          ListTile(title: Text('Cart'),onTap: (){
+            Navigator.of(context).push(MaterialPageRoute(builder: (context)=>cartcust()));
           },),
           ListTile(title: Text("Sign out"),
             onTap: (){
