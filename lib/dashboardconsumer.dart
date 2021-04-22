@@ -112,17 +112,104 @@ class sidedrawer extends StatelessWidget {
           ListTile(title: Text('Cart'),onTap: (){
             Navigator.of(context).push(MaterialPageRoute(builder: (context)=>cartcust()));
           },),
+          ListTile(title: Text("orders"),
+            onTap: (){
+
+                Navigator.of(context).push(MaterialPageRoute(builder: (context)=>orderscust()));
+
+            },
+          ),
           ListTile(title: Text("Sign out"),
             onTap: (){
                FirebaseAuth.instance.signOut().then((res){
                  Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=>loginpage()));
                });
             },
-          )
+          ),
+
         ],
       ),
     );
   }
 }
+List prodname=[];
+List quantord=[];
+List status=[];
 
 
+class orderscust extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Orders"),
+      ),
+
+      body: StreamBuilder(
+        stream:FirebaseFirestore.instance.collection('custordersto').doc(FirebaseAuth.instance.currentUser.email).snapshots(),
+        builder: (context, AsyncSnapshot snapshot){
+          if(snapshot.connectionState==ConnectionState.active){
+
+             print(snapshot.data.data().entries.toList()[0].value['item'].length);
+
+             for(int i=0;i<snapshot.data.data().entries.toList().length;i++){
+
+//                  print(snapshot.data().data.entries.toList()[i].value['item']);
+             for(int j=0;j<snapshot.data.data().entries.toList()[i].value['item'].length;j++){
+                 prodname.add(snapshot.data.data().entries.toList()[i].value['item'][j]);
+                 quantord.add(snapshot.data.data().entries.toList()[i].value['quant'][j]);
+                 status.add(snapshot.data.data().entries.toList()[i].value['status'][j]);
+              }
+
+             }
+
+            return ListView.builder(itemCount: prodname.length,itemBuilder:(context,index){
+              return cardorder(index);
+            });
+          }
+          else {
+            return Center(child: CircularProgressIndicator(),);
+          }
+        },
+      ),
+    );
+
+  }
+}
+class cardorder extends StatelessWidget {
+
+  int index;
+  cardorder(this.index);
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Column(children: [
+        Text(prodname[index]),
+        Text(quantord[index]),
+        Text(status[index]),
+        FlatButton(onPressed: status[index]=='placed'?(){
+          Navigator.push(context, MaterialPageRoute(builder: (context)=>feedback()));
+        }:null, child: Text('feedback')),
+      ],
+     )
+    );
+  }
+}
+
+class feedback extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("Feedback")),
+      body:Card(
+        child: Column(
+          children: [
+            TextField(),
+            FlatButton(onPressed: null, child: Text("Submit")),
+          ],
+        ),
+      )
+    );
+  }
+}
