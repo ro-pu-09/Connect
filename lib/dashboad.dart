@@ -4,6 +4,7 @@ import 'package:oopproject/authentication.dart';
 import 'package:oopproject/authenticationbloc.dart';
 import 'package:oopproject/dashboardconsumer.dart';
 import 'package:oopproject/dashboardretailer.dart';
+import 'package:oopproject/dashboardwholesaler.dart';
 
 import 'User.dart';
 
@@ -24,6 +25,7 @@ class dashBoard extends StatelessWidget{
         //distanceAPI.getListOfretailers();
         if(userd.type=='retailer') return dashboardretailer();
         else if (userd.type=='consumer')return dashboardconsumer();
+        else if(userd.type=='wholesaler') return dashboardwholesaler();
         else return loginpage();
 
       }

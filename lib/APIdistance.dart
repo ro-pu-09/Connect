@@ -23,7 +23,7 @@ class distanceAPI
         longcons=userD.longitude;
         finallist.clear();
 
-         dynamic snapshots=await FirebaseFirestore.instance.collection('UserDetails').where('type',isEqualTo: 'retailer').get();
+         dynamic snapshots=await FirebaseFirestore.instance.collection('UserDetails').where('type',isEqualTo: type).get();
 
 
         dynamic temp=await retailerList(snapshots,q,d,type,prodname,categ);

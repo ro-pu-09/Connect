@@ -4,6 +4,8 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:oopproject/cartret.dart';
+import 'package:oopproject/wholesalerlist.dart';
 
 import 'authentication.dart';
 
@@ -34,8 +36,8 @@ class _dashboardretailerState extends State<dashboardretailer> {
       ),
       body: StreamBuilder(
         initialData: 'vegetables',
-      stream: ctStream.outputcateg,
-      builder: (context,snapshot){
+        stream: ctStream.outputcateg,
+        builder: (context,snapshot){
           final db=FirebaseFirestore.instance;
           presentcateg=snapshot.data;
           return intputStream();
@@ -123,20 +125,14 @@ class productcard extends StatelessWidget {
 
   @override
   void initState() {
-    //price=productprice[index];
-    //quant=productquant[index];
-    //super.initState();
+
   }
 
   void makechangesprice(){
-
     FirebaseFirestore.instance.collection('retailer').doc('rohithputha@gmail.com').update({
-
-        presentcateg+'.'+productname[index]:[price,quant],
+      presentcateg+'.'+productname[index]:[price,quant],
          //'tomatoes':FieldValue.arrayUnion(['60','100']),
-
     });
-
   }
   @override
   Widget build(BuildContext context) {
@@ -175,7 +171,9 @@ class productcard extends StatelessWidget {
               makechangesprice();
             }, icon: Icon(Icons.add), )
           ]),
-          FlatButton(child: Text("Buy stock"),onPressed: (){},),
+          FlatButton(child: Text("Buy stock"),onPressed: (){
+                Navigator.of(context).push(MaterialPageRoute(builder: (context)=> wholeList('wholesaler',productname[index],presentcateg)));
+          },),
         ],
       ),
     );
@@ -207,6 +205,20 @@ class sidedrawer extends StatelessWidget {
             ctStream.inputCateg.add('dairy');
             Navigator.of(context).pop();
           },),
+          ListTile(title: Text("Cart"),onTap: (){
+            Navigator.of(context).push(MaterialPageRoute(builder: (context)=>cartret()));
+            //Navigator.of(context).pop();
+          },),
+
+          ListTile(title: Text("Your Orders"),onTap: (){
+            Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ordersret()));
+            //Navigator.of(context).pop();
+          },),
+
+          ListTile(title: Text("Order Received"),onTap: (){
+            Navigator.of(context).push(MaterialPageRoute(builder: (context)=>orderfromret()));
+            //Navigator.of(context).pop();
+          },),
           ListTile(title: Text("Sign out",style: TextStyle(),),
            onTap: (){
             FirebaseAuth.instance.signOut().then((res){
@@ -229,5 +241,159 @@ class categoryStream{
 
   void dispose(){
     _categstr.close();
+  }
+}
+
+
+List<dynamic> prodname=[];
+List<dynamic> quantord=[];
+List<dynamic> status=[];
+
+
+class ordersret extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Orders"),
+      ),
+
+      body: StreamBuilder(
+        stream:FirebaseFirestore.instance.collection('retordersto').doc(FirebaseAuth.instance.currentUser.email).snapshots(),
+        builder: (context, AsyncSnapshot snapshot){
+          if(snapshot.connectionState==ConnectionState.active){
+
+            prodname.clear();
+            quantord.clear();
+            status.clear();
+
+            print(snapshot.data.data().entries.toList()[0].value['item'].length);
+
+            for(int i=0;i<snapshot.data.data().entries.toList().length;i++){
+
+//                  print(snapshot.data().data.entries.toList()[i].value['item']);
+              for(int j=0;j<snapshot.data.data().entries.toList()[i].value['item'].length;j++){
+                prodname.add(snapshot.data.data().entries.toList()[i].value['item'][j]);
+                quantord.add(snapshot.data.data().entries.toList()[i].value['quant'][j]);
+                status.add(snapshot.data.data().entries.toList()[i].value['status'][j]);
+              }
+
+            }
+
+            return ListView.builder(itemCount: prodname.length,itemBuilder:(context,index){
+              return cardorder(index);
+            });
+          }
+          else {
+            return Center(child: CircularProgressIndicator(),);
+          }
+        },
+      ),
+    );
+
+  }
+}
+class cardorder extends StatelessWidget {
+
+  int index;
+  cardorder(this.index);
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+        child: Column(children: [
+          Text(prodname[index]),
+          Text(quantord[index]),
+          Text(status[index]),
+          FlatButton(onPressed: status[index]=='placed'?(){
+            Navigator.push(context, MaterialPageRoute(builder: (context)=>feedback()));
+          }:null, child: Text('feedback')),
+        ],
+        )
+    );
+  }
+}
+
+class feedback extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(title: Text("Feedback")),
+        body:Card(
+          child: Column(
+            children: [
+              TextField(),
+              FlatButton(onPressed: null, child: Text("Submit")),
+            ],
+          ),
+        )
+    );
+  }
+}
+
+
+
+class orderfromret extends StatelessWidget {
+
+
+  @override
+  Widget build(BuildContext context) {
+
+      return Scaffold(
+        appBar: AppBar(
+          title: Text("Orders"),
+        ),
+
+        body: StreamBuilder(
+          stream: FirebaseFirestore.instance.collection('retialordersfrom').doc(FirebaseAuth.instance.currentUser.email).snapshots(),
+          builder: (context, AsyncSnapshot snapshot) {
+//            prodname.clear();
+//            quantord.clear();
+//            status.clear();
+
+            if (snapshot.connectionState == ConnectionState.active) {
+              print(FirebaseAuth.instance.currentUser.email);
+              print(List.from(snapshot.data.data()['item']));
+              prodname = List.from(snapshot.data.data()['item']);
+
+              quantord = List.from(snapshot.data.data()['quant']);
+
+              status = List.from(snapshot.data.data()['status']);
+
+
+              print(quantord);
+              print(status);
+              return ListView.builder(
+                  itemCount: prodname.length, itemBuilder: (context, index) {
+                return cardorderrec(index);
+              });
+            }
+
+
+            else {
+              return Center(child: CircularProgressIndicator(),);
+            }
+          },
+        ),
+      );
+    }
+
+}
+class cardorderrec extends StatelessWidget {
+
+  int index;
+  cardorderrec(this.index);
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+        child: Column(children: [
+          Text(prodname[index]),
+          Text(quantord[index]),
+          Text(status[index]),
+
+        ],
+        )
+    );
   }
 }
