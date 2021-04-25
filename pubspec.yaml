@@ -39,6 +39,11 @@ dependencies:
   geolocator: '^5.1.1'
   geocoder: ^0.2.1
   add_2_calendar:
+  flutter_email_sender:
+  mailer:
+  flutter_mailer:
+  mailer2:
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -48,11 +53,15 @@ dev_dependencies:
 
 # The following section is specific to Flutter.
 flutter:
+  assets:
+    - assets/vegetablesimage.jpeg
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+
+
 
   # To add assets to your application, add an assets section, like this:
   # assets:

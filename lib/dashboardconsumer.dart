@@ -67,6 +67,7 @@ class card extends StatelessWidget {
       child: Column(
         children: [
              Text(productname[index],style: TextStyle(fontSize: 24)),
+             Image.asset('assets/vegetablesimage.jpeg'),
              FlatButton(onPressed: (){
                Navigator.of(context).push(
                  MaterialPageRoute(builder: (context){
@@ -135,7 +136,7 @@ class sidedrawer extends StatelessWidget {
 List prodname=[];
 List quantord=[];
 List status=[];
-
+List retailer=[];
 
 class orderscust extends StatelessWidget {
   @override
@@ -148,6 +149,9 @@ class orderscust extends StatelessWidget {
       body: StreamBuilder(
         stream:FirebaseFirestore.instance.collection('custordersto').doc(FirebaseAuth.instance.currentUser.email).snapshots(),
         builder: (context, AsyncSnapshot snapshot){
+          prodname.clear();
+          quantord.clear();
+          status.clear();
           if(snapshot.connectionState==ConnectionState.active){
 
              print(snapshot.data.data().entries.toList()[0].value['item'].length);
@@ -159,6 +163,8 @@ class orderscust extends StatelessWidget {
                  prodname.add(snapshot.data.data().entries.toList()[i].value['item'][j]);
                  quantord.add(snapshot.data.data().entries.toList()[i].value['quant'][j]);
                  status.add(snapshot.data.data().entries.toList()[i].value['status'][j]);
+                 if(snapshot.data.data().entries.toList()[i].value['status'][j]=='delivered')feedbackmail(FirebaseAuth.instance.currentUser.email,snapshot.data.data().entries.toList()[i].value['item'][j] );
+                 wholesaler.add(snapshot.data.data().keys.toList()[i]);
               }
 
              }
@@ -188,16 +194,20 @@ class cardorder extends StatelessWidget {
         Text(prodname[index]),
         Text(quantord[index]),
         Text(status[index]),
-        FlatButton(onPressed: status[index]=='placed'?(){
-          Navigator.push(context, MaterialPageRoute(builder: (context)=>feedback()));
+        FlatButton(onPressed: status[index]=='delivered'?(){
+          Navigator.push(context, MaterialPageRoute(builder: (context)=>feedback(index)));
         }:null, child: Text('feedback')),
       ],
      )
     );
   }
 }
-
+TextEditingController contr=new TextEditingController();
 class feedback extends StatelessWidget {
+
+  int index;
+  feedback(this.index);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -205,11 +215,19 @@ class feedback extends StatelessWidget {
       body:Card(
         child: Column(
           children: [
-            TextField(),
-            FlatButton(onPressed: null, child: Text("Submit")),
+            TextField(controller: contr,),
+            FlatButton(onPressed: (){
+              FirebaseFirestore.instance.collection('feedbackret').doc(retailer[index]).set({
+                 contr.text:null ,
+              },
+              SetOptions(merge: true));
+              Navigator.of(context).pop();
+             }, child: Text("Submit")),
           ],
         ),
       )
     );
   }
 }
+
+

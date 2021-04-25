@@ -14,7 +14,7 @@ List<String> productname=[];
 List<String> productquant=[];
 List<String> productprice=[];
 String presentcateg;
-
+TextEditingController contr=new TextEditingController();
 class dashboardwholesaler extends StatefulWidget {
   @override
   _dashboardwholesalerState createState() => _dashboardwholesalerState();
@@ -31,11 +31,19 @@ class _dashboardwholesalerState extends State<dashboardwholesaler> {
         drawer: sidedrawer(),
         appBar: AppBar(
           title: Text("Wholesaler shop"),
+          actions: [
+            IconButton(icon: Icon(Icons.add), onPressed: (){
+              Navigator.of(context).push(MaterialPageRoute(builder: (context)=>addprods()));
+            })
+          ],
         ),
         body: StreamBuilder(
           initialData: 'vegetables',
           stream: ctStream.outputcateg,
           builder: (context,snapshot){
+
+
+
             final db=FirebaseFirestore.instance;
             presentcateg=snapshot.data;
             return intputStream();
@@ -173,12 +181,11 @@ class productcard extends StatelessWidget {
                 IconButton(onPressed: (){
                   price=(int.parse(price)+1).toString();
                   makechangesprice();
-                }, icon: Icon(Icons.add), )
-              ]),
-          FlatButton(child: Text("Buy stock"),onPressed: (){},),
+                }, icon: Icon(Icons.add),),
+
         ],
       ),
-    );
+    ]));
   }
 }
 
@@ -303,6 +310,41 @@ class cardorderrec extends StatelessWidget {
 
         ],
         )
+    );
+  }
+}
+
+
+
+class addprods extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("Add product"),),
+      body: Card(child: Column(
+        children: [
+          TextField(
+            controller:contr,
+          ),
+          FlatButton(onPressed: (){
+
+            FirebaseFirestore.instance.collection('wholesaler').doc(FirebaseAuth.instance.currentUser.email).set({
+              presentcateg:{
+                contr.text:['0','0']
+              }
+            }, SetOptions(merge: true));
+
+            FirebaseFirestore.instance.collection('products').doc(presentcateg).set({
+               contr.text:null
+            },SetOptions(merge: true));
+
+            Navigator.of(context).pop();
+           }, child: Text("Submit")),
+
+
+
+        ],
+      ),),
     );
   }
 }

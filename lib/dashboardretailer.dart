@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:mailer2/mailer.dart';
 import 'package:oopproject/cartret.dart';
 import 'package:oopproject/wholesalerlist.dart';
 
@@ -16,7 +17,7 @@ List<String> productname=[];
 List<String> productquant=[];
 List<String> productprice=[];
 String presentcateg;
-
+TextEditingController contr=new TextEditingController();
 class dashboardretailer extends StatefulWidget {
   @override
   _dashboardretailerState createState() => _dashboardretailerState();
@@ -33,6 +34,11 @@ class _dashboardretailerState extends State<dashboardretailer> {
       drawer: sidedrawer(),
       appBar: AppBar(
         title: Text("My Shop"),
+        actions: [
+          IconButton(icon: Icon(Icons.add), onPressed: (){
+            Navigator.of(context).push(MaterialPageRoute(builder: (context)=>addprods()));
+          })
+        ],
       ),
       body: StreamBuilder(
         initialData: 'vegetables',
@@ -248,7 +254,7 @@ class categoryStream{
 List<dynamic> prodname=[];
 List<dynamic> quantord=[];
 List<dynamic> status=[];
-
+List<dynamic> wholesaler=[];
 
 class ordersret extends StatelessWidget {
   @override
@@ -276,6 +282,8 @@ class ordersret extends StatelessWidget {
                 prodname.add(snapshot.data.data().entries.toList()[i].value['item'][j]);
                 quantord.add(snapshot.data.data().entries.toList()[i].value['quant'][j]);
                 status.add(snapshot.data.data().entries.toList()[i].value['status'][j]);
+                wholesaler.add(snapshot.data.data().keys.toList()[i]);
+                if(snapshot.data.data().entries.toList()[i].value['status'][j]=='delivered')feedbackmail(FirebaseAuth.instance.currentUser.email, snapshot.data.data().entries.toList()[i].value['item'][j]);
               }
 
             }
@@ -305,16 +313,19 @@ class cardorder extends StatelessWidget {
           Text(prodname[index]),
           Text(quantord[index]),
           Text(status[index]),
-          FlatButton(onPressed: status[index]=='placed'?(){
-            Navigator.push(context, MaterialPageRoute(builder: (context)=>feedback()));
+          FlatButton(onPressed: status[index]=='delivered'?(){
+            Navigator.push(context, MaterialPageRoute(builder: (context)=>feedback(index)));
           }:null, child: Text('feedback')),
         ],
         )
     );
   }
 }
-
+TextEditingController contr2=new TextEditingController();
 class feedback extends StatelessWidget {
+  int index;
+  feedback(this.index);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -322,8 +333,14 @@ class feedback extends StatelessWidget {
         body:Card(
           child: Column(
             children: [
-              TextField(),
-              FlatButton(onPressed: null, child: Text("Submit")),
+              TextField(controller: contr2,),
+              FlatButton(onPressed: (){
+                FirebaseFirestore.instance.collection('feedbackwh').doc(wholesaler[index]).set({
+                  contr2.text:null ,
+                },
+                    SetOptions(merge: true));
+                Navigator.of(context).pop();
+              }, child: Text("Submit")),
             ],
           ),
         )
@@ -396,4 +413,70 @@ class cardorderrec extends StatelessWidget {
         )
     );
   }
+}
+
+class addprods extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("Add product"),),
+      body: Card(child: Column(
+        children: [
+          TextField(
+            controller:contr,
+          ),
+          FlatButton(onPressed: (){
+
+            FirebaseFirestore.instance.collection('retailer').doc(FirebaseAuth.instance.currentUser.email).set({
+              presentcateg:{
+                contr.text:['0','0']
+              }
+            }, SetOptions(merge: true));
+
+            FirebaseFirestore.instance.collection('products').doc(presentcateg).set({
+              contr.text:null
+            },SetOptions(merge: true));
+
+            Navigator.of(context).pop();
+          }, child: Text("Submit")),
+
+
+
+        ],
+      ),),
+    );
+  }
+}
+
+
+feedbackmail(String emailid, item){
+  String username = "rohithputha@gmail.com";
+  String password = "rohith2000";
+
+  // final smtpServer = gmailRelaySaslXoauth2(username,password);
+
+  var options = new GmailSmtpOptions()
+    ..username = 'rohithputha@gmail.com'
+    ..password = 'rohith2000';
+  // Creating the Gmail server
+  var emailTransport = new SmtpTransport(options);
+
+  // Create our email message.
+  var envelope = new Envelope()
+    ..from = 'rohithputha@gmail.com'
+    ..recipients.add(emailid)
+    ..subject = 'Live Mart'
+    ..text = 'Your'+item+' have been delivered. Please give your feedback in the app. Thank you';
+
+  emailTransport.send(envelope)
+      .then((envelope) => print('Email sent!'))
+      .catchError((e) => print('Error occurred: $e'));
+}
+
+Future<String> getquant(String cat,dynamic snapshot, String item,String quant) async{
+
+  int index=snapshot.data().keys.toList().indexOf(cat);
+
+  dynamic snapshots= FirebaseFirestore.instance.collection('wholesaler').doc('rohithputhabits@gmail.com').get();
+  return (int.parse(snapshot.data().entries.toList()[index].value.entries.toList()[item].value[1])-int.parse(quant)).toString();
 }

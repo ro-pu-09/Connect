@@ -183,5 +183,6 @@ addtocalender(String email,String quant, String prod, context) async{
     allDay: true,
 
   );
-    Add2Calendar.addEvent2Cal(event).then((success)=>SnackBar(content: Text(success?'Added to calender':'Error while adding to calender')));
+
+  Add2Calendar.addEvent2Cal(event).then((success)=>SnackBar(content: Text(success?'Added to calender':'Error while adding to calender')));
 }
